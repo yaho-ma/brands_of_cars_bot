@@ -1,10 +1,33 @@
 import re
 from operator import itemgetter
-
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 import requests
 import validators
 from bs4 import BeautifulSoup
 from collections import Counter
+from selenium import webdriver
+
+# creates selenium service
+service = Service(ChromeDriverManager().install())
+
+
+def analyze_page_with_selenium(my_ulr: str):
+    driver = webdriver.Chrome(service=service)
+
+    try:
+
+        # all code for work
+        driver.get(my_ulr)
+        page_content = driver.page_source
+        print(f'\n\n page content from SELENIUM: \n \n {page_content}')
+
+
+    except Exception as ex:
+        print(ex)
+    finally:
+        driver.close()
+        driver.quit()
 
 
 def get_page_content(url):
@@ -25,7 +48,7 @@ def get_page_content(url):
         return None
 
 
-def analyze_brands(page_content):
+def analyze_brands_with_bs4(page_content):
     soup = BeautifulSoup(page_content, 'html.parser')
 
     text_elements = soup.find_all(text=True)

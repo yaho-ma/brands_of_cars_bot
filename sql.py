@@ -1,5 +1,6 @@
 import sqlite3
 import asyncio
+from datetime import date
 
 
 def add_user_query_toDb(text_from_user):
@@ -25,8 +26,24 @@ def show_history():
 
     conn.close()
 
-    formatted_history =[]
+    formatted_history = []
     for row in all_db_data:
         formatted_history.append(f'ID: {row[0]}, Query: {row[1]}, Date: {row[2]} ')
 
     return formatted_history
+
+
+def show_todays_history():
+
+    current_date = date.today()
+    conn = sqlite3.connect('history.db')
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM history_table WHERE DATE(date) = ?', (current_date,))
+    result = cur.fetchall()
+
+    conn.close()
+
+    if result:
+        return "\n".join([str(row) for row in result])
+    else:
+        return "No history for today"
