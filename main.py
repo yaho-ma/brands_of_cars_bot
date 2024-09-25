@@ -3,8 +3,8 @@ import re, logging
 from datetime import date
 from typing import Final
 import validators
-from analyze_page import get_page_content, analyze_brands_with_bs4,analyze_page_with_selenium
-from sql import add_user_query_toDb, show_history, show_todays_history
+from analyze_page import get_page_content, analyze_brands_with_bs4, analyze_page_with_selenium
+from sql import add_user_query_toDb, show_history, show_todays_history, show_history_for_current_week
 import requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -13,8 +13,6 @@ from api_key import TOKEN, BOT_USERNAME, GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID
 # Configure logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
 
 
 # search function
@@ -111,14 +109,8 @@ async def analyze_page(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     await update.message.reply_text(f'Analyzing the page: {url}')
 
-
-
-
-    #page_content = analyze_page_with_selenium(url)
+    # page_content = analyze_page_with_selenium(url)
     page_content = get_page_content(url)
-
-
-
 
     if page_content:
         sorted_brand_counts = analyze_brands_with_bs4(page_content)
@@ -151,6 +143,11 @@ async def show_history_for_today(update: Update, context: ContextTypes.DEFAULT_T
     await update.message.reply_text(history_today)
 
 
+async def show_history_for_week(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    history_for_week = show_history_for_current_week()
+    await  update.message.reply_text(history_for_week)
+
+
 ##### -- MAIN -- ######################################################################################################
 
 
@@ -162,6 +159,7 @@ def main():
     application.add_handler(CommandHandler('page', analyze_page))
     application.add_handler(CommandHandler('history', history))
     application.add_handler(CommandHandler('history_for_today', show_history_for_today))
+    application.add_handler(CommandHandler('history_for_week', show_history_for_week))
 
     print('Polling...')
     application.run_polling(poll_interval=2)
